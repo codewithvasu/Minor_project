@@ -1,0 +1,137 @@
+import java.io.*;
+import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+public class demand {
+    public static void details() {
+        Scanner scanner = new Scanner(System.in);
+
+        // Prompt the user for their name, password, and company name
+        System.out.print("Enter your Company name: ");
+        String Company_name = scanner.nextLine();
+
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        scanner.close();
+
+        System.out.println("plz wait processing ..");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // After the 20-second delay, you can perform further actions if needed
+        System.out.println("Thank you for wait");
+
+        try {
+            // Open a file for appending (or create it if it doesn't exist)
+            FileWriter fileWriter = new FileWriter("company_info.txt", true);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+            // Write the company name and password to the file
+            bufferedWriter.write("Company Name: " + Company_name + "\n");
+            bufferedWriter.write("Password: " + password + "\n");
+            bufferedWriter.write("\n");  // Add a blank line to separate entries
+
+            // Close the file to save the data
+            bufferedWriter.close();
+
+            System.out.println("Company information has been saved to 'company_info.txt'.");
+        } catch (IOException e) {
+            System.err.println("An error occurred while writing to the file: " + e.getMessage());
+        }
+
+
+
+        System.out.println("plz wait processing ..");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+//user defined function  on regression
+public static void  linearregression(ArrayList<Double>Xvalues,ArrayList<Double>Yvalues) {
+//regression equation y=a1x+a0;
+//slope=size*sumxy-sumx*sumy/size*sumx2-sumx2;
+// intercept= sumy-slope*sumx/size;
+
+// calculating slope
+    double size = Xvalues.size();
+    double sumxy = 0;
+    double sumx = 0;
+    double sumy = 0;
+    double sumx2 = 0;
+
+    for (int i = 0; i < size; i++) {
+        double x = Xvalues.get(i);
+        double y = Yvalues.get(i);
+
+        sumxy += x * y;
+        sumx += x;
+        sumy += y;
+        sumx2 = x * x;
+    }
+
+    double slope =  size*sumxy-sumx*sumy/size*sumx2-sumx2;
+slope = Math.abs(slope);
+//make this positive 
+    System.out.println(slope);
+}
+// calculating intercept
+
+
+ public static void main(String[] args) {
+    details();
+        // Creating FILE CLASS and also passing the CSV file path
+        File file = new File("E:\\PROJECTS\\MINOR 1\\sample.csv"); // Removed extra double quotes
+ArrayList<Double> sale_price = new ArrayList<>();
+ArrayList <Double> units_sold =new ArrayList<>();
+        String[] parts=new String[3];
+        try {
+            // Using BufferedReader to read the CSV file
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+
+            // Create ArrayList to store data from the CSV file
+            System.out.println("SALE PRICE"+"\t"+"\t"+"UNITS SOLD");
+
+            while ((line = br.readLine()) != null) {
+                StringTokenizer token = new StringTokenizer(line,",");
+                if (token.countTokens() == 3) {
+                    token.nextToken();//skip the index
+                    double xvalue ;
+                    double yvalue ;
+                    try {
+                        xvalue = Double.parseDouble(token.nextToken().trim());
+                        yvalue = Double.parseDouble(token.nextToken().trim());
+                    }catch (NumberFormatException e) {
+                        System.out.println("processing..........");
+                        continue;
+                    }
+
+                    sale_price.add(xvalue);
+                    units_sold.add(yvalue);
+                    //System.out.println(sale_price+"\t"+units_sold);
+                }
+            }
+            br.close();
+
+            linearregression(sale_price,units_sold);
+
+
+
+
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+
+    }}
