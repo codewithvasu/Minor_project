@@ -1,14 +1,18 @@
 import java.io.*;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.awt.*;//abstract window toolkit
+import java.awt.geom.*;// perform 2d geometry operation
+import javax.swing.*;
+
+
 public class demand {
     public static void details() {
         Scanner scanner = new Scanner(System.in);
 
-        // Prompt the user for their name, password, and company name
+        // Prompt the user for their password, and company name
         System.out.print("Enter your Company name: ");
         String Company_name = scanner.nextLine();
 
@@ -58,9 +62,7 @@ public class demand {
 
 //user defined function  on regression
 public static void  linearregression(ArrayList<Double>Xvalues,ArrayList<Double>Yvalues) {
-//regression equation y=a1x+a0;
-//slope=size*sumxy-sumx*sumy/size*sumx2-sumx2;
-// intercept= sumy-slope*sumx/size;
+
 
 // calculating slope
     double size = Xvalues.size();
@@ -69,28 +71,141 @@ public static void  linearregression(ArrayList<Double>Xvalues,ArrayList<Double>Y
     double sumy = 0;
     double sumx2 = 0;
 
+
     for (int i = 0; i < size; i++) {
-        double x = Xvalues.get(i);
+      double x = Xvalues.get(i);
         double y = Yvalues.get(i);
 
-        sumxy += x * y;
+       sumxy += x * y;
         sumx += x;
         sumy += y;
         sumx2 = x * x;
     }
 
-    double slope =  size*sumxy-sumx*sumy/size*sumx2-sumx2;
-slope = Math.abs(slope);
-//make this positive 
-    System.out.println(slope);
+
+    double slope =  (size*sumxy-sumx*sumy)/(size*sumx2-sumx2);
+slope = Math.abs(slope);   //make this positive
+    System.out.println("SLOPE:"+slope);
+
+    // calculating intercept
+    double intercept=(sumy-slope*sumx)/size;
+intercept= Math.abs(intercept);
+    System.out.println("INTERCEPT:"+intercept);
+predicted(slope, intercept);
+
+
+
+
 }
-// calculating intercept
+public static void predicted(double slope , double intercept)
+{
+
+    File file1 = new File("E:\\PROJECTS\\MINOR 1\\sale_pricetest.csv");
+    ArrayList<Double> saleprice = new ArrayList<>();
+    String[] parts=new String[2];
+    ArrayList<String> categoryname  = new ArrayList<>();
+    try {
+        // Using BufferedReader to read the CSV file
+        FileReader fr1 = new FileReader(file1);
+        BufferedReader br1 = new BufferedReader(fr1);
+        String line;
+
+        // Create ArrayList to store data from the CSV file
+
+
+        while ((line = br1.readLine()) != null) {
+            StringTokenizer token = new StringTokenizer(line,",");
+            if (token.countTokens() == 2 ){
+
+                parts= line.split(",");
+
+               double xvalue1;
+
+                try {
+                  xvalue1  = Double.parseDouble(token.nextToken().trim());
+
+                }catch (NumberFormatException e) {
+                    System.out.println("processing..........");
+                    continue;
+                }
+                String product = token.nextToken().trim();
+                categoryname.add(product);
+                saleprice.add(xvalue1);
+
+}}
+
+
+        br1.close();
+
+
+        ArrayList<Double> predicted_unitssold  = new ArrayList<>();// to store predicted data
+
+
+
+        for(int i=0 ; i< saleprice.size();i++){
+
+              double yvalue1= slope*saleprice.get(i)+intercept;
+
+            predicted_unitssold.add(yvalue1);
+        }
+
+
+
+
+        saveToCSV("E:\\PROJECTS\\MINOR 1\\testdata_and_predictions.csv",categoryname, saleprice, predicted_unitssold);
+
+
+
+
+
+
+    }
+    catch (IOException e) {
+        System.out.println("An error occurred: " + e.getMessage());
+    }
+
+
+
+
+}
+
+
+    public static void saveToCSV(String filePath, ArrayList<String>categoryname, ArrayList<Double> testdata, ArrayList<Double> predicted_value) {
+        try {
+            File file = new File(filePath);
+
+            // Check if the file already exists, if not, create a new file
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            // Write the header
+            bw.write("CategoryName,Sale Price,Predicted_UnitsSold");
+            bw.newLine();
+
+            // Write data
+            for (int i = 0; i < testdata.size(); i++) {
+                bw.write(categoryname.get(i)+","+testdata.get(i) + "," + predicted_value.get(i));
+                bw.newLine();
+            }
+
+            bw.close();
+            fw.close();
+
+            System.out.println("Data saved to " + filePath);
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving to CSV: " + e.getMessage());
+        }
+    }
 
 
  public static void main(String[] args) {
-    details();
+    details();// function call
         // Creating FILE CLASS and also passing the CSV file path
-        File file = new File("E:\\PROJECTS\\MINOR 1\\sample.csv"); // Removed extra double quotes
+        File file = new File("E:\\PROJECTS\\MINOR 1\\sample.csv");
 ArrayList<Double> sale_price = new ArrayList<>();
 ArrayList <Double> units_sold =new ArrayList<>();
         String[] parts=new String[3];
@@ -101,7 +216,7 @@ ArrayList <Double> units_sold =new ArrayList<>();
             String line;
 
             // Create ArrayList to store data from the CSV file
-            System.out.println("SALE PRICE"+"\t"+"\t"+"UNITS SOLD");
+            //System.out.println("SALE PRICE"+"\t"+"\t"+"UNITS SOLD");
 
             while ((line = br.readLine()) != null) {
                 StringTokenizer token = new StringTokenizer(line,",");
@@ -109,6 +224,8 @@ ArrayList <Double> units_sold =new ArrayList<>();
                     token.nextToken();//skip the index
                     double xvalue ;
                     double yvalue ;
+                    parts= line.split(",");
+                    System.out.println(parts[1]+"\t\t"+parts[2]);
                     try {
                         xvalue = Double.parseDouble(token.nextToken().trim());
                         yvalue = Double.parseDouble(token.nextToken().trim());
@@ -119,12 +236,14 @@ ArrayList <Double> units_sold =new ArrayList<>();
 
                     sale_price.add(xvalue);
                     units_sold.add(yvalue);
-                    //System.out.println(sale_price+"\t"+units_sold);
+
                 }
             }
             br.close();
 
-            linearregression(sale_price,units_sold);
+
+
+            linearregression(sale_price,units_sold); // calling linearregression  user defined function
 
 
 
